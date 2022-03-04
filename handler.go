@@ -183,7 +183,8 @@ func (h *GODNSHandler) do(Net string, w dns.ResponseWriter, req *dns.Msg) {
 					Class:  dns.ClassINET,
 					Ttl:    settings.Hosts.TTL,
 				}
-				aaaa := &dns.AAAA{new_header, syn6}
+				syn6IP := net.ParseIP(syn6)
+				aaaa := &dns.AAAA{new_header, syn6IP}
 				mesg.Answer = append(mesg.Answer, aaaa)
 
 			}

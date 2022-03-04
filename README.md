@@ -189,4 +189,8 @@ stdout_logfile = /var/log/godns.log
 godns is under the MIT license. See the LICENSE file for details.
 
 
+##
 
+I have forked and modified this code to return a sythesized IPv6 address when there are no AAAA records.
+
+Probably not ideal and very hacky but fun and it works. --B
