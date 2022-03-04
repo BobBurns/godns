@@ -179,6 +179,7 @@ func (r *Resolver) Lookup(net string, req *dns.Msg) (message *dns.Msg, err error
 		select {
 		case re := <-res:
 			logger.Debug("%s resolv on %s rtt: %v", UnFqdn(qname), re.nameserver, re.rtt)
+			logger.Info("bob %q", re.msg)
 			return re.msg, nil
 		case <-ticker.C:
 			continue

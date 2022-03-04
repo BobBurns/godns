@@ -3,6 +3,7 @@ package main
 import (
 	"net"
 	"time"
+	"strings"
 
 	"github.com/miekg/dns"
 )
@@ -163,6 +164,32 @@ func (h *GODNSHandler) do(Net string, w dns.ResponseWriter, req *dns.Msg) {
 		}
 		return
 	}
+
+	// this is where I add check for AAAA
+	syn6 := ""
+	if mesg.Question[0].Qtype == 28 && len(mesg.Answer) == 0 {
+		logger.Info("No AAAA answer.")
+		logger.Info("request string %s type %d", req.Question[0].Name, req.Question[0].Qtype)
+		req.Question[0].Qtype = 1
+		tmpmesg, _ := h.resolver.Lookup(Net, req)
+		if len(tmpmesg.Answer) > 0 {
+			logger.Info("A answer %s", tmpmesg.Answer[0].String())
+			aip := strings.Fields(tmpmesg.Answer[0].String())
+			if len(aip) > 4 {
+				syn6 = "64:ff9b::" + aip[4]
+				new_header := dns.RR_Header{
+					Name:   q.Name,
+					Rrtype: dns.TypeAAAA,
+					Class:  dns.ClassINET,
+					Ttl:    settings.Hosts.TTL,
+				}
+				aaaa := &dns.AAAA{new_header, syn6}
+				mesg.Answer = append(mesg.Answer, aaaa)
+
+			}
+		}
+	}
+	logger.Info("syn6 %s", syn6)
 
 	w.WriteMsg(mesg)
 
